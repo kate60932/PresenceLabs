@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統開發服務 | Presence Labs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --light-blue: #8EC4F3;
+            --vibrant-purple: #D550EC;
+            --dark: #0a0a0f;
+            --darker: #05050a;
+            --white: #ffffff;
+            --gray: #8b8b9f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* 使用原生平滑捲動 */
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #ffffff;
+            color: #0a0a0f;
+        }
+
+        body.light-mode .gradient-blob {
+            opacity: 0.1;
+        }
+
+        body.light-mode .nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        body.light-mode .nav-link,
+        body.light-mode .nav-icon {
+            color: var(--dark);
+        }
+
+
+
+        body.light-mode .hero-badge {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .hero-title {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .section-title {
+            background: linear-gradient(135deg, var(--dark), #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .glass-card,
+        body.light-mode .tech-card,
+        body.light-mode .approach-card {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--vibrant-purple);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(142, 196, 243, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.3s ease;
+            mix-blend-mode: difference;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--light-blue), transparent);
+            top: -200px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--vibrant-purple), transparent);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: 5s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--light-blue), transparent);
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, -50px) scale(1.1); }
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 2rem 4rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav.scrolled {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 100px;
+
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--light-blue), var(--vibrant-purple));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-icon {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover {
+            color: var(--vibrant-purple);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 10rem 4rem 6rem;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            color: var(--light-blue);
+        }
+
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            max-width: 1000px;
+        }
+
+        .hero-text {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--gray);
+            max-width: 800px;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(213, 80, 236, 0.4);
+        }
+
+        /* Section */
+        .section {
+            padding: 8rem 4rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            max-width: 900px;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--light-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white), var(--gray));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-text {
+            font-size: 1.2rem;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--light-blue), var(--vibrant-purple));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .glass-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(213, 80, 236, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            font-size: 1.05rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        .card-list {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .card-list li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.8rem;
+            color: var(--gray);
+        }
+
+        .card-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--vibrant-purple);
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--light-blue);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Approach Section */
+        .approach-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .approach-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            transition: all 0.4s ease;
+        }
+
+        .approach-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(142, 196, 243, 0.3);
+        }
+
+        .approach-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .approach-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .approach-text {
+            font-size: 1.05rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 20px currentColor);
+        }
+
+        .benefit-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-text {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(142, 196, 243, 0.1), rgba(213, 80, 236, 0.1));
+            border-radius: 24px;
+            padding: 6rem 4rem;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .cta-text {
+            font-size: 1.3rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero,
+            .section {
+                padding: 6rem 2rem;
+            }
+
+            .nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .approach-grid,
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html {
+                cursor: auto;
+            }
+
+            .cursor,
+            .cursor-follower {
+                display: none;
+            }
+        }
+
+        .fade-in-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            height: 80px;
+        }
+
+        .footer-tagline {
+            color: var(--gray);
+            font-size: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--light-blue);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        a.footer-link {
+            cursor: pointer;
+        }
+
+        a.footer-link:hover {
+            color: var(--vibrant-purple);
+            padding-left: 5px;
+        }
+
+        span.footer-link {
+            cursor: default;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        body.light-mode .footer {
+            background: rgba(255, 255, 255, 0.98);
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .footer-bottom {
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer {
+                padding: 3rem 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Background -->
+    <div class="bg-animation">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        <div class="gradient-blob blob-3"></div>
+    </div>
+    <div class="grain"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-content">
+            <a href="index.html">
+                <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="logo" id="navLogo">
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#about" class="nav-link" data-en="About" data-zh="關於">關於</a></li>
+                <li><a href="index.html#services" class="nav-link" data-en="Services" data-zh="服務">服務</a></li>
+                <li><a href="index.html#products" class="nav-link" data-en="Products" data-zh="產品">產品</a></li>
+                <li><a href="index.html#contact" class="nav-link" data-en="Contact" data-zh="聯絡">聯絡</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="nav-icon" id="themeToggle">☀️</button>
+                <button class="nav-icon" id="langToggle" data-en="中" data-zh="EN">EN</button>
+                <a href="index.html#contact" class="nav-cta" data-en="Get Started" data-zh="開始合作">開始合作</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge" data-en="SYSTEM DEVELOPMENT SERVICES" data-zh="系統開發服務">系統開發服務</span>
+            <h1 class="hero-title" data-en="Build Scalable Systems That Drive Growth" data-zh="打造驅動增長的可擴展系統">打造驅動增長的可擴展系統</h1>
+            <p class="hero-text" data-en="From concept to deployment, we engineer robust, high-performance software solutions that scale with your business. Our expert team combines cutting-edge technology with proven methodologies to deliver systems that transform operations and accelerate digital transformation." data-zh="從概念到部署,我們工程化穩健、高效能的軟體解決方案,隨您的業務擴展。我們的專家團隊結合前沿技術與經過驗證的方法論,交付轉型營運並加速數位轉型的系統。">從概念到部署,我們工程化穩健、高效能的軟體解決方案,隨您的業務擴展。我們的專家團隊結合前沿技術與經過驗證的方法論,交付轉型營運並加速數位轉型的系統。</p>
+            <a href="index.html#contact" class="btn-primary" data-en="Start Your Project" data-zh="開始您的專案">開始您的專案</a>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="WHAT WE BUILD" data-zh="我們打造什麼">我們打造什麼</span>
+                <h2 class="section-title" data-en="Comprehensive Development Solutions" data-zh="全方位開發解決方案">全方位開發解決方案</h2>
+                <p class="section-text" data-en="We deliver end-to-end software development services tailored to your unique business requirements and technical challenges." data-zh="我們提供端到端的軟體開發服務,針對您獨特的業務需求和技術挑戰量身定制。">我們提供端到端的軟體開發服務,針對您獨特的業務需求和技術挑戰量身定制。</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🚀</span>
+                    <h3 class="card-title" data-en="Custom Software Development" data-zh="客製化軟體開發">客製化軟體開發</h3>
+                    <p class="card-text" data-en="Bespoke solutions designed specifically for your business processes and workflows. We build software that fits your exact requirements, not the other way around." data-zh="專為您的業務流程和工作流程設計的訂製解決方案。我們打造符合您確切需求的軟體,而非讓您適應軟體。">專為您的業務流程和工作流程設計的訂製解決方案。我們打造符合您確切需求的軟體,而非讓您適應軟體。</p>
+                    <ul class="card-list">
+                        <li data-en="Enterprise applications" data-zh="企業級應用程式">企業級應用程式</li>
+                        <li data-en="Business process automation" data-zh="業務流程自動化">業務流程自動化</li>
+                        <li data-en="Legacy system modernization" data-zh="舊系統現代化">舊系統現代化</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🌐</span>
+                    <h3 class="card-title" data-en="Web Application Development" data-zh="網頁應用開發">網頁應用開發</h3>
+                    <p class="card-text" data-en="Progressive web applications that deliver native-like experiences across all devices. Fast, responsive, and built for the modern web." data-zh="提供類原生體驗的漸進式網頁應用,橫跨所有裝置。快速、響應式,為現代網路而建。">提供類原生體驗的漸進式網頁應用,橫跨所有裝置。快速、響應式,為現代網路而建。</p>
+                    <ul class="card-list">
+                        <li data-en="Single Page Applications (SPA)" data-zh="單頁應用程式 (SPA)">單頁應用程式 (SPA)</li>
+                        <li data-en="Progressive Web Apps (PWA)" data-zh="漸進式網頁應用 (PWA)">漸進式網頁應用 (PWA)</li>
+                        <li data-en="E-commerce platforms" data-zh="電子商務平台">電子商務平台</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">📱</span>
+                    <h3 class="card-title" data-en="Mobile App Development" data-zh="行動應用開發">行動應用開發</h3>
+                    <p class="card-text" data-en="Native and cross-platform mobile applications that provide seamless user experiences on iOS and Android devices." data-zh="在 iOS 和 Android 裝置上提供無縫用戶體驗的原生和跨平台行動應用。">在 iOS 和 Android 裝置上提供無縫用戶體驗的原生和跨平台行動應用。</p>
+                    <ul class="card-list">
+                        <li data-en="Native iOS & Android apps" data-zh="原生 iOS 與 Android 應用">原生 iOS 與 Android 應用</li>
+                        <li data-en="Cross-platform development" data-zh="跨平台開發">跨平台開發</li>
+                        <li data-en="App store optimization" data-zh="應用商店優化">應用商店優化</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">☁️</span>
+                    <h3 class="card-title" data-en="Cloud Solutions" data-zh="雲端解決方案">雲端解決方案</h3>
+                    <p class="card-text" data-en="Cloud-native architectures that leverage the power of AWS, Azure, and Google Cloud for maximum scalability and reliability." data-zh="利用 AWS、Azure 和 Google Cloud 的力量,實現最大可擴展性和可靠性的雲端原生架構。">利用 AWS、Azure 和 Google Cloud 的力量,實現最大可擴展性和可靠性的雲端原生架構。</p>
+                    <ul class="card-list">
+                        <li data-en="Cloud migration & modernization" data-zh="雲端遷移與現代化">雲端遷移與現代化</li>
+                        <li data-en="Microservices architecture" data-zh="微服務架構">微服務架構</li>
+                        <li data-en="Serverless computing" data-zh="無伺服器運算">無伺服器運算</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🔗</span>
+                    <h3 class="card-title" data-en="API & Integration" data-zh="API 與整合">API 與整合</h3>
+                    <p class="card-text" data-en="Seamless system integration and API development that connects your technology ecosystem and enables data flow across platforms." data-zh="無縫系統整合和 API 開發,連接您的技術生態系統並實現跨平台數據流動。">無縫系統整合和 API 開發,連接您的技術生態系統並實現跨平台數據流動。</p>
+                    <ul class="card-list">
+                        <li data-en="RESTful & GraphQL APIs" data-zh="RESTful 與 GraphQL API">RESTful 與 GraphQL API</li>
+                        <li data-en="Third-party integrations" data-zh="第三方整合">第三方整合</li>
+                        <li data-en="Legacy system connectivity" data-zh="舊系統連接">舊系統連接</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🤖</span>
+                    <h3 class="card-title" data-en="AI & Machine Learning" data-zh="AI 與機器學習">AI 與機器學習</h3>
+                    <p class="card-text" data-en="Intelligent systems powered by AI and ML that automate processes, predict outcomes, and deliver personalized experiences." data-zh="由 AI 和 ML 驅動的智能系統,自動化流程、預測結果並提供個人化體驗。">由 AI 和 ML 驅動的智能系統,自動化流程、預測結果並提供個人化體驗。</p>
+                    <ul class="card-list">
+                        <li data-en="Predictive analytics" data-zh="預測分析">預測分析</li>
+                        <li data-en="Natural language processing" data-zh="自然語言處理">自然語言處理</li>
+                        <li data-en="Computer vision applications" data-zh="計算機視覺應用">計算機視覺應用</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="TECHNOLOGY STACK" data-zh="技術堆疊">技術堆疊</span>
+                <h2 class="section-title" data-en="Modern Technologies We Master" data-zh="我們精通的現代技術">我們精通的現代技術</h2>
+                <p class="section-text" data-en="We leverage the latest technologies and frameworks to build high-performance, secure, and maintainable systems." data-zh="我們利用最新的技術和框架來構建高效能、安全且可維護的系統。">我們利用最新的技術和框架來構建高效能、安全且可維護的系統。</p>
+            </div>
+
+            <div class="tech-grid fade-in-scroll">
+                <div class="tech-card">
+                    <div class="tech-icon">⚛️</div>
+                    <div class="tech-name">React / Next.js</div>
+                    <div class="tech-desc" data-en="Frontend" data-zh="前端開發">前端開發</div>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🟢</div>
+                    <div class="tech-name">Node.js</div>
+                    <div class="tech-desc" data-en="Backend" data-zh="後端開發">後端開發</div>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🐍</div>
+                    <div class="tech-name">Python</div>
+                    <div class="tech-desc" data-en="AI & Data" data-zh="AI 與數據">AI 與數據</div>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🦀</div>
+                    <div class="tech-name">Rust / Go</div>
+                    <div class="tech-desc" data-en="Performance" data-zh="高效能">高效能</div>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">☁️</div>
+                    <div class="tech-name">AWS / Azure</div>
+                    <div class="tech-desc" data-en="Cloud" data-zh="雲端">雲端</div>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🐳</div>
+                    <div class="tech-name">Docker / K8s</div>
+                    <div class="tech-desc" data-en="DevOps" data-zh="DevOps">DevOps</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Approach -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="OUR APPROACH" data-zh="我們的方法">我們的方法</span>
+                <h2 class="section-title" data-en="How We Deliver Excellence" data-zh="我們如何交付卓越">我們如何交付卓越</h2>
+                <p class="section-text" data-en="Our proven development methodology ensures quality, efficiency, and alignment with your business objectives." data-zh="我們經過驗證的開發方法論確保質量、效率並與您的業務目標一致。">我們經過驗證的開發方法論確保質量、效率並與您的業務目標一致。</p>
+            </div>
+
+            <div class="approach-grid">
+                <div class="approach-card fade-in-scroll">
+                    <div class="approach-number">01</div>
+                    <h3 class="approach-title" data-en="Agile Development" data-zh="敏捷開發">敏捷開發</h3>
+                    <p class="approach-text" data-en="Iterative development with continuous feedback loops, ensuring flexibility and rapid adaptation to changing requirements while maintaining high quality standards." data-zh="持續反饋循環的迭代開發,確保靈活性和快速適應不斷變化的需求,同時保持高質量標準。">持續反饋循環的迭代開發,確保靈活性和快速適應不斷變化的需求,同時保持高質量標準。</p>
+                </div>
+
+                <div class="approach-card fade-in-scroll">
+                    <div class="approach-number">02</div>
+                    <h3 class="approach-title" data-en="DevOps Integration" data-zh="DevOps 整合">DevOps 整合</h3>
+                    <p class="approach-text" data-en="Automated CI/CD pipelines, infrastructure as code, and continuous monitoring enable faster deployment cycles and improved system reliability." data-zh="自動化 CI/CD 管道、基礎設施即代碼和持續監控實現更快的部署週期和改進的系統可靠性。">自動化 CI/CD 管道、基礎設施即代碼和持續監控實現更快的部署週期和改進的系統可靠性。</p>
+                </div>
+
+                <div class="approach-card fade-in-scroll">
+                    <div class="approach-number">03</div>
+                    <h3 class="approach-title" data-en="Security First" data-zh="安全優先">安全優先</h3>
+                    <p class="approach-text" data-en="Built-in security from day one with comprehensive threat modeling, secure coding practices, and regular security audits to protect your data and systems." data-zh="從第一天開始內建安全性,通過全面的威脅建模、安全編碼實踐和定期安全審核來保護您的數據和系統。">從第一天開始內建安全性,通過全面的威脅建模、安全編碼實踐和定期安全審核來保護您的數據和系統。</p>
+                </div>
+
+                <div class="approach-card fade-in-scroll">
+                    <div class="approach-number">04</div>
+                    <h3 class="approach-title" data-en="Scalable Architecture" data-zh="可擴展架構">可擴展架構</h3>
+                    <p class="approach-text" data-en="Microservices, containerization, and cloud-native design patterns ensure your systems can grow seamlessly as your business expands." data-zh="微服務、容器化和雲端原生設計模式確保您的系統能隨著業務擴展而無縫增長。">微服務、容器化和雲端原生設計模式確保您的系統能隨著業務擴展而無縫增長。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="WHY CHOOSE US" data-zh="為何選擇我們">為何選擇我們</span>
+                <h2 class="section-title" data-en="The Presence Labs Advantage" data-zh="Presence Labs 優勢">Presence Labs 優勢</h2>
+            </div>
+
+            <div class="benefits-grid fade-in-scroll">
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <h3 class="benefit-title" data-en="65% Faster" data-zh="快 65%">快 65%</h3>
+                    <p class="benefit-text" data-en="Time-to-market with agile methodology" data-zh="採用敏捷方法的上市時間">採用敏捷方法的上市時間</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛡️</div>
+                    <h3 class="benefit-title" data-en="99.9%" data-zh="99.9%">99.9%</h3>
+                    <p class="benefit-text" data-en="Uptime guarantee" data-zh="運行時間保證">運行時間保證</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">💰</div>
+                    <h3 class="benefit-title" data-en="40% Cost" data-zh="降低 40% 成本">降低 40% 成本</h3>
+                    <p class="benefit-text" data-en="Reduction in operational expenses" data-zh="運營費用">運營費用</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📈</div>
+                    <h3 class="benefit-title" data-en="3x Scalability" data-zh="3 倍擴展性">3 倍擴展性</h3>
+                    <p class="benefit-text" data-en="Improved system capacity" data-zh="改進的系統容量">改進的系統容量</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔒</div>
+                    <h3 class="benefit-title" data-en="Zero Breaches" data-zh="零漏洞">零漏洞</h3>
+                    <p class="benefit-text" data-en="Track record of security" data-zh="安全記錄">安全記錄</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🌟</div>
+                    <h3 class="benefit-title" data-en="95% Satisfaction" data-zh="95% 滿意度">95% 滿意度</h3>
+                    <p class="benefit-text" data-en="Client retention rate" data-zh="客戶保留率">客戶保留率</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="section-container">
+            <div class="cta-section fade-in-scroll">
+                <h2 class="cta-title" data-en="Ready to Build Your Next System?" data-zh="準備好打造您的下一個系統了嗎?">準備好打造您的下一個系統了嗎?</h2>
+                <p class="cta-text" data-en="Let's discuss how we can help you achieve your technology goals with robust, scalable solutions." data-zh="讓我們討論如何以穩健、可擴展的解決方案幫助您實現技術目標。">讓我們討論如何以穩健、可擴展的解決方案幫助您實現技術目標。</p>
+                <a href="index.html#contact" class="btn-primary" data-en="Start Your Project" data-zh="開始您的專案">開始您的專案</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="footer-logo" id="footerLogo">
+                    <p class="footer-tagline" data-en="Better Through Presence" data-zh="因為在場,所以更好">因為在場,所以更好</p>
+                </div>
+             
+                <div>
+                    <h4 class="footer-title" data-en="CONTACT" data-zh="聯絡">聯絡</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html#contact" class="footer-link" data-en="Get in Touch" data-zh="與我們聯繫">與我們聯繫</a></li>
+                        <li><span class="footer-link">0987-326-396</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title" data-en="LOCATION" data-zh="位置">位置</h4>
+                    <ul class="footer-links">
+                        <li><span class="footer-link" data-en="Taichung, Taiwan" data-zh="台灣 台中">台灣 台中</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-en="© 2025 Presence Labs. All rights reserved." data-zh="© 2025 在場實驗室。版權所有。">© 2025 在場實驗室。版權所有。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移除自定義平滑捲動以支援跨頁面錨點連結
+        // 改用 CSS scroll-behavior: smooth
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            themeToggle.textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.textContent = '🌙';
+        }
+        setTimeout(() => {
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        }, 10);
+
+        // Nav Scroll
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Language Toggle
+        const langToggle = document.getElementById('langToggle');
+        const navLogo = document.getElementById('navLogo');
+        const footerLogo = document.getElementById('footerLogo');
+        let currentLang = 'zh';
+
+        // Logo 路徑管理函數 - 同時處理語言和主題切換
+        function updateLogos() {
+            const isLight = body.classList.contains('light-mode');
+            const theme = isLight ? '' : '_Dark2';
+            
+            const logoPath = currentLang === 'zh'
+                ? `images/Presence_Lab_CHE_logo_EF${theme}.png`
+                : `images/Presence_Lab_ENG_logo_EF${theme}.png`;
+            
+            navLogo.src = logoPath;
+            footerLogo.src = logoPath;
+        }
+
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            
+            document.querySelectorAll('[data-en][data-zh]').forEach(el => {
+                el.textContent = currentLang === 'en' ? el.dataset.en : el.dataset.zh;
+            });
+            
+            updateLogos();
+            localStorage.setItem('language', currentLang);
+        });
+
+        if (localStorage.getItem('language') === 'en') {
+            langToggle.click();
+        }
+
+        // Scroll Animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+        document.querySelectorAll('.fade-in-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>設施管理系統 | Presence Labs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --light-blue: #8EC4F3;
+            --vibrant-purple: #D550EC;
+            --dark: #0a0a0f;
+            --darker: #05050a;
+            --white: #ffffff;
+            --gray: #8b8b9f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* 使用原生平滑捲動 */
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #ffffff;
+            color: #0a0a0f;
+        }
+
+        body.light-mode .gradient-blob {
+            opacity: 0.1;
+        }
+
+        body.light-mode .nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        body.light-mode .nav-link,
+        body.light-mode .nav-icon {
+            color: var(--dark);
+        }
+
+
+
+        body.light-mode .hero-badge {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .hero-title {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .section-title {
+            background: linear-gradient(135deg, var(--dark), #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .glass-card,
+        body.light-mode .module-card,
+        body.light-mode .stat-card {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--vibrant-purple);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(142, 196, 243, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.3s ease;
+            mix-blend-mode: difference;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--light-blue), transparent);
+            top: -200px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--vibrant-purple), transparent);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: 5s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--light-blue), transparent);
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, -50px) scale(1.1); }
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 2rem 4rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav.scrolled {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 100px;
+
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--light-blue), var(--vibrant-purple));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-icon {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover {
+            color: var(--vibrant-purple);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 10rem 4rem 6rem;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            color: var(--light-blue);
+        }
+
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            max-width: 1000px;
+        }
+
+        .hero-text {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--gray);
+            max-width: 800px;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(213, 80, 236, 0.4);
+        }
+
+        /* Section */
+        .section {
+            padding: 8rem 4rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            max-width: 900px;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--light-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white), var(--gray));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-text {
+            font-size: 1.2rem;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--vibrant-purple);
+        }
+
+        .stat-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+
+        /* Architecture Image */
+        .architecture-section {
+            margin: 4rem 0;
+        }
+
+        .architecture-image {
+            width: 100%;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .architecture-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Module Cards */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .module-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--light-blue), var(--vibrant-purple));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .module-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(213, 80, 236, 0.3);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .module-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .module-text {
+            font-size: 1.05rem;
+            color: var(--gray);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-features {
+            list-style: none;
+        }
+
+        .module-features li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.8rem;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .module-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--light-blue);
+            font-weight: bold;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(142, 196, 243, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            font-size: 1.05rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(142, 196, 243, 0.1), rgba(213, 80, 236, 0.1));
+            border-radius: 24px;
+            padding: 6rem 4rem;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .cta-text {
+            font-size: 1.3rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero,
+            .section {
+                padding: 6rem 2rem;
+            }
+
+            .nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html {
+                cursor: auto;
+            }
+
+            .cursor,
+            .cursor-follower {
+                display: none;
+            }
+        }
+
+        .fade-in-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            height: 80px;
+        }
+
+        .footer-tagline {
+            color: var(--gray);
+            font-size: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--light-blue);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        a.footer-link {
+            cursor: pointer;
+        }
+
+        a.footer-link:hover {
+            color: var(--vibrant-purple);
+            padding-left: 5px;
+        }
+
+        span.footer-link {
+            cursor: default;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        body.light-mode .footer {
+            background: rgba(255, 255, 255, 0.98);
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .footer-bottom {
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer {
+                padding: 3rem 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Background -->
+    <div class="bg-animation">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        <div class="gradient-blob blob-3"></div>
+    </div>
+    <div class="grain"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-content">
+            <a href="index.html">
+                <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="logo" id="navLogo">
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#about" class="nav-link" data-en="About" data-zh="關於">關於</a></li>
+                <li><a href="index.html#services" class="nav-link" data-en="Services" data-zh="服務">服務</a></li>
+                <li><a href="index.html#products" class="nav-link" data-en="Products" data-zh="產品">產品</a></li>
+                <li><a href="index.html#contact" class="nav-link" data-en="Contact" data-zh="聯絡">聯絡</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="nav-icon" id="themeToggle">☀️</button>
+                <button class="nav-icon" id="langToggle" data-en="中" data-zh="EN">EN</button>
+                <a href="index.html#contact" class="nav-cta" data-en="Get Started" data-zh="開始合作">開始合作</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge" data-en="FACILITY MANAGEMENT SYSTEM" data-zh="設施管理系統">設施管理系統</span>
+            <h1 class="hero-title" data-en="Smart Building Management for the Future" data-zh="面向未來的智慧建築管理">面向未來的智慧建築管理</h1>
+            <p class="hero-text" data-en="Comprehensive facility management platform integrating IoT, AI, and data analytics to optimize building operations, reduce energy costs by 40%, and create sustainable, comfortable environments for occupants." data-zh="整合 IoT、AI 和數據分析的全方位設施管理平台,優化建築營運、降低 40% 能源成本,並為使用者創造永續、舒適的環境。">整合 IoT、AI 和數據分析的全方位設施管理平台,優化建築營運、降低 40% 能源成本,並為使用者創造永續、舒適的環境。</p>
+            <a href="index.html#contact" class="btn-primary" data-en="Request Demo" data-zh="申請展示">申請展示</a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="section">
+        <div class="section-container">
+            <div class="stats-grid fade-in-scroll">
+                <div class="stat-card">
+                    <div class="stat-number">40%</div>
+                    <div class="stat-label" data-en="Energy Cost Reduction" data-zh="能源成本降低">能源成本降低</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">28.5%</div>
+                    <div class="stat-label" data-en="Market CAGR Growth" data-zh="市場年增長率">市場年增長率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">115M</div>
+                    <div class="stat-label" data-en="Smart Buildings by 2026" data-zh="2026 年智慧建築數">2026 年智慧建築數</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label" data-en="System Uptime" data-zh="系統正常運作時間">系統正常運作時間</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label" data-en="Real-time Monitoring" data-zh="即時監控">即時監控</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="SYSTEM ARCHITECTURE" data-zh="系統架構">系統架構</span>
+                <h2 class="section-title" data-en="Integrated Platform Design" data-zh="整合式平台設計">整合式平台設計</h2>
+                <p class="section-text" data-en="Our facility management platform architecture is designed for maximum efficiency, security, and scalability across all building systems." data-zh="我們的設施管理平台架構專為所有建築系統的最大效率、安全性和可擴展性而設計。">我們的設施管理平台架構專為所有建築系統的最大效率、安全性和可擴展性而設計。</p>
+            </div>
+
+            <div class="architecture-section fade-in-scroll">
+                <div class="architecture-image">
+                    <img src="/mnt/user-data/uploads/1767862014901.jpg" alt="設施管理平台功能表">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Modules -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="CORE MODULES" data-zh="核心模組">核心模組</span>
+                <h2 class="section-title" data-en="Complete Management Suite" data-zh="完整管理套件">完整管理套件</h2>
+                <p class="section-text" data-en="Comprehensive modules covering every aspect of facility management from assets to energy, maintenance to organization." data-zh="涵蓋設施管理各個方面的全面模組,從資產到能源、維護到組織。">涵蓋設施管理各個方面的全面模組,從資產到能源、維護到組織。</p>
+            </div>
+
+            <div class="modules-grid">
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">📦</span>
+                    <h3 class="module-title" data-en="Asset Management" data-zh="資產管理">資產管理</h3>
+                    <p class="module-text" data-en="Complete lifecycle tracking of all facility assets with automated depreciation, maintenance scheduling, and performance monitoring." data-zh="完整的設施資產生命週期追蹤,包含自動折舊、維護排程和效能監控。">完整的設施資產生命週期追蹤,包含自動折舊、維護排程和效能監控。</p>
+                    <ul class="module-features">
+                        <li data-en="Real-time asset tracking" data-zh="即時資產追蹤">即時資產追蹤</li>
+                        <li data-en="Depreciation management" data-zh="折舊管理">折舊管理</li>
+                        <li data-en="QR code integration" data-zh="QR Code 整合">QR Code 整合</li>
+                        <li data-en="Asset performance analytics" data-zh="資產效能分析">資產效能分析</li>
+                    </ul>
+                </div>
+
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">⚡</span>
+                    <h3 class="module-title" data-en="Energy Management" data-zh="效能管理">效能管理</h3>
+                    <p class="module-text" data-en="AI-powered energy optimization with real-time monitoring, predictive analytics, and automated controls to reduce consumption by 40%." data-zh="AI 驅動的能源優化,具備即時監控、預測分析和自動控制,降低 40% 能耗。">AI 驅動的能源優化,具備即時監控、預測分析和自動控制,降低 40% 能耗。</p>
+                    <ul class="module-features">
+                        <li data-en="Smart meter integration" data-zh="智慧電表整合">智慧電表整合</li>
+                        <li data-en="Carbon footprint tracking" data-zh="碳足跡追蹤">碳足跡追蹤</li>
+                        <li data-en="Energy consumption reports" data-zh="能源消耗報告">能源消耗報告</li>
+                        <li data-en="HVAC optimization" data-zh="HVAC 優化">HVAC 優化</li>
+                    </ul>
+                </div>
+
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">👥</span>
+                    <h3 class="module-title" data-en="Organization Management" data-zh="組織管理">組織管理</h3>
+                    <p class="module-text" data-en="Streamlined tenant, contractor, and staff management with access control, billing automation, and communication tools." data-zh="簡化租戶、承包商和員工管理,包含門禁控制、計費自動化和通訊工具。">簡化租戶、承包商和員工管理,包含門禁控制、計費自動化和通訊工具。</p>
+                    <ul class="module-features">
+                        <li data-en="Tenant management" data-zh="租戶管理">租戶管理</li>
+                        <li data-en="Contractor coordination" data-zh="承包商協調">承包商協調</li>
+                        <li data-en="Staff scheduling" data-zh="員工排程">員工排程</li>
+                        <li data-en="Access control integration" data-zh="門禁控制整合">門禁控制整合</li>
+                    </ul>
+                </div>
+
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">🔧</span>
+                    <h3 class="module-title" data-en="Maintenance Management" data-zh="維護管理">維護管理</h3>
+                    <p class="module-text" data-en="Predictive maintenance powered by IoT sensors and machine learning to prevent failures and extend asset lifespan." data-zh="由 IoT 感測器和機器學習驅動的預測性維護,預防故障並延長資產壽命。">由 IoT 感測器和機器學習驅動的預測性維護,預防故障並延長資產壽命。</p>
+                    <ul class="module-features">
+                        <li data-en="Preventive maintenance scheduling" data-zh="預防性維護排程">預防性維護排程</li>
+                        <li data-en="Work order management" data-zh="工單管理">工單管理</li>
+                        <li data-en="Spare parts inventory" data-zh="備品庫存">備品庫存</li>
+                        <li data-en="Equipment history tracking" data-zh="設備歷史追蹤">設備歷史追蹤</li>
+                    </ul>
+                </div>
+
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">📄</span>
+                    <h3 class="module-title" data-en="Document Management" data-zh="文件管理">文件管理</h3>
+                    <p class="module-text" data-en="Centralized document repository with version control, e-signatures, and compliance tracking for all facility documentation." data-zh="集中式文件儲存庫,具備版本控制、電子簽名和合規追蹤,管理所有設施文件。">集中式文件儲存庫,具備版本控制、電子簽名和合規追蹤,管理所有設施文件。</p>
+                    <ul class="module-features">
+                        <li data-en="Version control system" data-zh="版本控制系統">版本控制系統</li>
+                        <li data-en="E-signature workflow" data-zh="電子簽名流程">電子簽名流程</li>
+                        <li data-en="Compliance tracking" data-zh="合規追蹤">合規追蹤</li>
+                        <li data-en="Secure document storage" data-zh="安全文件儲存">安全文件儲存</li>
+                    </ul>
+                </div>
+
+                <div class="module-card fade-in-scroll">
+                    <span class="module-icon">📊</span>
+                    <h3 class="module-title" data-en="Analytics & Reporting" data-zh="分析與報告">分析與報告</h3>
+                    <p class="module-text" data-en="Real-time dashboards and advanced analytics providing actionable insights for data-driven facility management decisions." data-zh="即時儀表板和進階分析,為數據驅動的設施管理決策提供可行動的洞察。">即時儀表板和進階分析,為數據驅動的設施管理決策提供可行動的洞察。</p>
+                    <ul class="module-features">
+                        <li data-en="Real-time dashboards" data-zh="即時儀表板">即時儀表板</li>
+                        <li data-en="Custom report builder" data-zh="自訂報告建立器">自訂報告建立器</li>
+                        <li data-en="KPI tracking" data-zh="KPI 追蹤">KPI 追蹤</li>
+                        <li data-en="Predictive analytics" data-zh="預測分析">預測分析</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="KEY FEATURES" data-zh="核心功能">核心功能</span>
+                <h2 class="section-title" data-en="Next-Generation Smart Building Technology" data-zh="下一代智慧建築技術">下一代智慧建築技術</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🌐</span>
+                    <h3 class="card-title" data-en="IoT Integration" data-zh="IoT 整合">IoT 整合</h3>
+                    <p class="card-text" data-en="Seamlessly connect thousands of IoT sensors and devices for comprehensive building monitoring. Real-time data collection from HVAC, lighting, security, and environmental systems." data-zh="無縫連接數千個 IoT 感測器和裝置,進行全面的建築監控。從 HVAC、照明、安全和環境系統即時收集數據。">無縫連接數千個 IoT 感測器和裝置,進行全面的建築監控。從 HVAC、照明、安全和環境系統即時收集數據。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🤖</span>
+                    <h3 class="card-title" data-en="AI-Powered Automation" data-zh="AI 驅動自動化">AI 驅動自動化</h3>
+                    <p class="card-text" data-en="Machine learning algorithms optimize building operations automatically. Predictive maintenance prevents failures before they occur, reducing downtime by 60%." data-zh="機器學習演算法自動優化建築營運。預測性維護在故障發生前預防,減少 60% 停機時間。">機器學習演算法自動優化建築營運。預測性維護在故障發生前預防,減少 60% 停機時間。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">📱</span>
+                    <h3 class="card-title" data-en="Mobile Management" data-zh="行動管理">行動管理</h3>
+                    <p class="card-text" data-en="Control and monitor your facilities from anywhere with our mobile app. Receive instant alerts, approve work orders, and access real-time analytics on the go." data-zh="透過我們的行動應用程式隨時隨地控制和監控您的設施。接收即時警報、批准工單並隨時訪問即時分析。">透過我們的行動應用程式隨時隨地控制和監控您的設施。接收即時警報、批准工單並隨時訪問即時分析。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🔒</span>
+                    <h3 class="card-title" data-en="Advanced Security" data-zh="進階安全">進階安全</h3>
+                    <p class="card-text" data-en="Enterprise-grade security with encrypted data transmission, role-based access control, and comprehensive audit trails. Compliant with international security standards." data-zh="企業級安全性,具備加密數據傳輸、角色型存取控制和全面審計追蹤。符合國際安全標準。">企業級安全性,具備加密數據傳輸、角色型存取控制和全面審計追蹤。符合國際安全標準。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">♻️</span>
+                    <h3 class="card-title" data-en="Sustainability Tracking" data-zh="永續追蹤">永續追蹤</h3>
+                    <p class="card-text" data-en="Monitor and reduce your carbon footprint with detailed emissions tracking, ESG reporting, and renewable energy integration. Achieve green building certifications." data-zh="透過詳細的排放追蹤、ESG 報告和再生能源整合,監控並減少您的碳足跡。達成綠建築認證。">透過詳細的排放追蹤、ESG 報告和再生能源整合,監控並減少您的碳足跡。達成綠建築認證。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🔄</span>
+                    <h3 class="card-title" data-en="System Integration" data-zh="系統整合">系統整合</h3>
+                    <p class="card-text" data-en="Open architecture supporting BACnet, Modbus, and other industry-standard protocols. Easily integrate with existing BMS, ERP, and third-party systems." data-zh="支援 BACnet、Modbus 和其他行業標準協議的開放式架構。輕鬆與現有 BMS、ERP 和第三方系統整合。">支援 BACnet、Modbus 和其他行業標準協議的開放式架構。輕鬆與現有 BMS、ERP 和第三方系統整合。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="section-container">
+            <div class="cta-section fade-in-scroll">
+                <h2 class="cta-title" data-en="Transform Your Building Into a Smart Facility" data-zh="將您的建築轉型為智慧設施">將您的建築轉型為智慧設施</h2>
+                <p class="cta-text" data-en="Join 115 million smart buildings worldwide. Start your digital transformation today with our comprehensive facility management platform." data-zh="加入全球 1.15 億座智慧建築。立即開始使用我們的全方位設施管理平台進行數位轉型。">加入全球 1.15 億座智慧建築。立即開始使用我們的全方位設施管理平台進行數位轉型。</p>
+                <a href="index.html#contact" class="btn-primary" data-en="Schedule a Demo" data-zh="預約展示">預約展示</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="footer-logo" id="footerLogo">
+                    <p class="footer-tagline" data-en="Better Through Presence" data-zh="因為在場,所以更好">因為在場,所以更好</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title" data-en="CONTACT" data-zh="聯絡">聯絡</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html#contact" class="footer-link" data-en="Get in Touch" data-zh="與我們聯繫">與我們聯繫</a></li>
+                        <li><span class="footer-link">0987-326-396</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title" data-en="LOCATION" data-zh="位置">位置</h4>
+                    <ul class="footer-links">
+                        <li><span class="footer-link" data-en="Taichung, Taiwan" data-zh="台灣 台中">台灣 台中</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-en="© 2025 Presence Labs. All rights reserved." data-zh="© 2025 在場實驗室。版權所有。">© 2025 在場實驗室。版權所有。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移除自定義平滑捲動以支援跨頁面錨點連結
+        // 改用 CSS scroll-behavior: smooth
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            themeToggle.textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.textContent = '🌙';
+        }
+        setTimeout(() => {
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        }, 10);
+
+        // Nav Scroll
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Language Toggle
+        const langToggle = document.getElementById('langToggle');
+        const navLogo = document.getElementById('navLogo');
+        const footerLogo = document.getElementById('footerLogo');
+        let currentLang = 'zh';
+
+        // Logo 路徑管理函數 - 同時處理語言和主題切換
+        function updateLogos() {
+            const isLight = body.classList.contains('light-mode');
+            const theme = isLight ? '' : '_Dark2';
+            
+            const logoPath = currentLang === 'zh'
+                ? `images/Presence_Lab_CHE_logo_EF${theme}.png`
+                : `images/Presence_Lab_ENG_logo_EF${theme}.png`;
+            
+            navLogo.src = logoPath;
+            footerLogo.src = logoPath;
+        }
+
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            
+            document.querySelectorAll('[data-en][data-zh]').forEach(el => {
+                el.textContent = currentLang === 'en' ? el.dataset.en : el.dataset.zh;
+            });
+            
+            updateLogos();
+            localStorage.setItem('language', currentLang);
+        });
+
+        if (localStorage.getItem('language') === 'en') {
+            langToggle.click();
+        }
+
+        // Scroll Animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+        document.querySelectorAll('.fade-in-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

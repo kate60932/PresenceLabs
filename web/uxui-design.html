@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX/UI 設計服務 | Presence Labs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --light-blue: #8EC4F3;
+            --vibrant-purple: #D550EC;
+            --dark: #0a0a0f;
+            --darker: #05050a;
+            --white: #ffffff;
+            --gray: #8b8b9f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* 使用原生平滑捲動 */
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #ffffff;
+            color: #0a0a0f;
+        }
+
+        body.light-mode .gradient-blob {
+            opacity: 0.1;
+        }
+
+        body.light-mode .nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        body.light-mode .nav-link,
+        body.light-mode .nav-icon {
+            color: var(--dark);
+        }
+
+
+        body.light-mode .hero-badge {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .hero-title {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .section-title {
+            background: linear-gradient(135deg, var(--dark), #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .glass-card {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .process-step {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .stat-card {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--vibrant-purple);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(142, 196, 243, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.3s ease;
+            mix-blend-mode: difference;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--light-blue), transparent);
+            top: -200px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--vibrant-purple), transparent);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, -50px) scale(1.1); }
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 2rem 4rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav.scrolled {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 100px;
+
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--light-blue), var(--vibrant-purple));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-icon {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover {
+            color: var(--vibrant-purple);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 10rem 4rem 6rem;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            color: var(--light-blue);
+        }
+
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white) 0%, var(--light-blue) 50%, var(--vibrant-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            max-width: 1000px;
+        }
+
+        .hero-text {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--gray);
+            max-width: 800px;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            color: var(--white);
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(213, 80, 236, 0.4);
+        }
+
+        /* Section */
+        .section {
+            padding: 8rem 4rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            max-width: 900px;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--light-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--white), var(--gray));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-text {
+            font-size: 1.2rem;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--vibrant-purple);
+        }
+
+        .stat-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--light-blue), var(--vibrant-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(213, 80, 236, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            font-size: 1.05rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Process */
+        .process-timeline {
+            position: relative;
+            padding-left: 4rem;
+        }
+
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--light-blue), var(--vibrant-purple));
+        }
+
+        .process-step {
+            position: relative;
+            margin-bottom: 4rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+        }
+
+        .process-step::before {
+            content: '';
+            position: absolute;
+            left: -4.5rem;
+            top: 2rem;
+            width: 20px;
+            height: 20px;
+            background: var(--vibrant-purple);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--vibrant-purple);
+        }
+
+        .step-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--light-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .step-text {
+            font-size: 1.1rem;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(142, 196, 243, 0.1), rgba(213, 80, 236, 0.1));
+            border-radius: 24px;
+            padding: 6rem 4rem;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .cta-text {
+            font-size: 1.3rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero,
+            .section {
+                padding: 6rem 2rem;
+            }
+
+            .nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html {
+                cursor: auto;
+            }
+
+            .cursor,
+            .cursor-follower {
+                display: none;
+            }
+
+            .process-timeline {
+                padding-left: 2rem;
+            }
+        }
+
+        .fade-in-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            height: 80px;
+        }
+
+        .footer-tagline {
+            color: var(--gray);
+            font-size: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--light-blue);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        a.footer-link {
+            cursor: pointer;
+        }
+
+        a.footer-link:hover {
+            color: var(--vibrant-purple);
+            padding-left: 5px;
+        }
+
+        span.footer-link {
+            cursor: default;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        body.light-mode .footer {
+            background: rgba(255, 255, 255, 0.98);
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .footer-bottom {
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer {
+                padding: 3rem 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Background -->
+    <div class="bg-animation">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+    </div>
+    <div class="grain"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-content">
+            <a href="index.html">
+                <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="logo" id="navLogo">
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#about" class="nav-link" data-en="About" data-zh="關於">關於</a></li>
+                <li><a href="index.html#services" class="nav-link" data-en="Services" data-zh="服務">服務</a></li>
+                <li><a href="index.html#products" class="nav-link" data-en="Products" data-zh="產品">產品</a></li>
+                <li><a href="index.html#contact" class="nav-link" data-en="Contact" data-zh="聯絡">聯絡</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="nav-icon" id="themeToggle">☀️</button>
+                <button class="nav-icon" id="langToggle" data-en="中" data-zh="EN">EN</button>
+                <a href="index.html#contact" class="nav-cta" data-en="Get Started" data-zh="開始合作">開始合作</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge" data-en="UX/UI DESIGN SERVICES" data-zh="UX/UI 設計服務">UX/UI 設計服務</span>
+            <h1 class="hero-title" data-en="Design Experiences That Users Love" data-zh="設計用戶喜愛的體驗">設計用戶喜愛的體驗</h1>
+            <p class="hero-text" data-en="We create intuitive, beautiful, and data-driven interfaces that transform how users interact with your products. From user research to pixel-perfect execution, we craft experiences that drive engagement and business growth." data-zh="我們創造直觀、美觀且數據驅動的介面,轉變用戶與您產品的互動方式。從使用者研究到像素級完美執行,我們打造驅動參與度和業務增長的體驗。">我們創造直觀、美觀且數據驅動的介面,轉變用戶與您產品的互動方式。從使用者研究到像素級完美執行,我們打造驅動參與度和業務增長的體驗。</p>
+            <a href="index.html#contact" class="btn-primary" data-en="Start Your Project" data-zh="開始您的專案">開始您的專案</a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="section">
+        <div class="section-container">
+            <div class="stats-grid fade-in-scroll">
+                <div class="stat-card">
+                    <div class="stat-number">32%</div>
+                    <div class="stat-label" data-en="Higher Revenue Growth" data-zh="更高的營收增長">更高的營收增長</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2.5x</div>
+                    <div class="stat-label" data-en="User Engagement Boost" data-zh="用戶參與度提升">用戶參與度提升</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">65%</div>
+                    <div class="stat-label" data-en="Faster Time-to-Market" data-zh="更快上市時間">更快上市時間</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">90%</div>
+                    <div class="stat-label" data-en="User Satisfaction Rate" data-zh="用戶滿意度">用戶滿意度</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What We Offer -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="WHAT WE OFFER" data-zh="我們提供的服務">我們提供的服務</span>
+                <h2 class="section-title" data-en="Comprehensive UX/UI Design Solutions" data-zh="全方位 UX/UI 設計解決方案">全方位 UX/UI 設計解決方案</h2>
+                <p class="section-text" data-en="From research to launch, we provide end-to-end design services that put users at the center of everything we create." data-zh="從研究到上線,我們提供端到端的設計服務,將用戶置於我們創造的一切中心。">從研究到上線,我們提供端到端的設計服務,將用戶置於我們創造的一切中心。</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🔍</span>
+                    <h3 class="card-title" data-en="User Research & Analysis" data-zh="使用者研究與分析">使用者研究與分析</h3>
+                    <p class="card-text" data-en="Deep dive into user behaviors, needs, and pain points through interviews, surveys, and usability testing. We create data-driven personas and user journey maps that inform every design decision." data-zh="透過訪談、問卷和可用性測試深入了解用戶行為、需求和痛點。我們創建數據驅動的用戶畫像和旅程地圖,為每個設計決策提供依據。">透過訪談、問卷和可用性測試深入了解用戶行為、需求和痛點。我們創建數據驅動的用戶畫像和旅程地圖,為每個設計決策提供依據。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">✏️</span>
+                    <h3 class="card-title" data-en="Interface Design" data-zh="介面設計">介面設計</h3>
+                    <p class="card-text" data-en="Crafting pixel-perfect interfaces that balance aesthetics with functionality. We design responsive layouts, interactive components, and design systems that scale with your product." data-zh="打造平衡美學與功能的像素級完美介面。我們設計響應式佈局、互動元件和隨產品擴展的設計系統。">打造平衡美學與功能的像素級完美介面。我們設計響應式佈局、互動元件和隨產品擴展的設計系統。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🎯</span>
+                    <h3 class="card-title" data-en="Interaction Design" data-zh="互動設計">互動設計</h3>
+                    <p class="card-text" data-en="Creating meaningful interactions that delight users at every touchpoint. From micro-animations to complex user flows, we ensure every interaction feels natural and intentional." data-zh="創造在每個接觸點都讓用戶愉悅的有意義互動。從微動畫到複雜的用戶流程,我們確保每個互動都感覺自然且有目的。">創造在每個接觸點都讓用戶愉悅的有意義互動。從微動畫到複雜的用戶流程,我們確保每個互動都感覺自然且有目的。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">♿</span>
+                    <h3 class="card-title" data-en="Accessibility Design" data-zh="無障礙設計">無障礙設計</h3>
+                    <p class="card-text" data-en="Designing inclusive experiences that work for everyone. We follow WCAG 2.2 guidelines to ensure your product is accessible to users of all abilities, improving both reach and usability." data-zh="設計適用於所有人的包容性體驗。我們遵循 WCAG 2.2 指南,確保您的產品對所有能力的用戶都是可訪問的,提高覆蓋範圍和可用性。">設計適用於所有人的包容性體驗。我們遵循 WCAG 2.2 指南,確保您的產品對所有能力的用戶都是可訪問的,提高覆蓋範圍和可用性。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">📱</span>
+                    <h3 class="card-title" data-en="Mobile-First Design" data-zh="行動優先設計">行動優先設計</h3>
+                    <p class="card-text" data-en="Optimizing experiences for mobile devices where 63% of users begin their journey. We create responsive designs that adapt seamlessly across all screen sizes and devices." data-zh="為 63% 用戶開始旅程的行動裝置優化體驗。我們創建在所有螢幕尺寸和裝置上無縫適應的響應式設計。">為 63% 用戶開始旅程的行動裝置優化體驗。我們創建在所有螢幕尺寸和裝置上無縫適應的響應式設計。</p>
+                </div>
+
+                <div class="glass-card fade-in-scroll">
+                    <span class="card-icon">🤖</span>
+                    <h3 class="card-title" data-en="AI-Powered Personalization" data-zh="AI 驅動個人化">AI 驅動個人化</h3>
+                    <p class="card-text" data-en="Leveraging AI to create adaptive interfaces that learn from user behavior. We design predictive experiences that anticipate needs and deliver personalized content in real-time." data-zh="利用 AI 創建從用戶行為學習的自適應介面。我們設計預測性體驗,預測需求並即時提供個人化內容。">利用 AI 創建從用戶行為學習的自適應介面。我們設計預測性體驗,預測需求並即時提供個人化內容。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process -->
+    <section class="section">
+        <div class="section-container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-label" data-en="OUR PROCESS" data-zh="我們的流程">我們的流程</span>
+                <h2 class="section-title" data-en="How We Work" data-zh="我們如何工作">我們如何工作</h2>
+                <p class="section-text" data-en="A proven design process that balances creativity with data-driven decision making." data-zh="一個平衡創造力與數據驅動決策的經過驗證的設計流程。">一個平衡創造力與數據驅動決策的經過驗證的設計流程。</p>
+            </div>
+
+            <div class="process-timeline fade-in-scroll">
+                <div class="process-step">
+                    <div class="step-number" data-en="STEP 01" data-zh="步驟 01">步驟 01</div>
+                    <h3 class="step-title" data-en="Discovery & Research" data-zh="探索與研究">探索與研究</h3>
+                    <p class="step-text" data-en="We begin by understanding your business goals, target audience, and competitive landscape. Through user interviews, surveys, and analytics review, we identify opportunities and define success metrics." data-zh="我們首先了解您的業務目標、目標受眾和競爭格局。透過用戶訪談、問卷和分析審查,我們識別機會並定義成功指標。">我們首先了解您的業務目標、目標受眾和競爭格局。透過用戶訪談、問卷和分析審查,我們識別機會並定義成功指標。</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number" data-en="STEP 02" data-zh="步驟 02">步驟 02</div>
+                    <h3 class="step-title" data-en="Strategy & Planning" data-zh="策略與規劃">策略與規劃</h3>
+                    <p class="step-text" data-en="Based on research insights, we develop a comprehensive UX strategy. We create user personas, map customer journeys, and define information architecture that aligns with user needs and business objectives." data-zh="基於研究洞察,我們制定全面的 UX 策略。我們創建用戶畫像、繪製客戶旅程並定義符合用戶需求和業務目標的信息架構。">基於研究洞察,我們制定全面的 UX 策略。我們創建用戶畫像、繪製客戶旅程並定義符合用戶需求和業務目標的信息架構。</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number" data-en="STEP 03" data-zh="步驟 03">步驟 03</div>
+                    <h3 class="step-title" data-en="Design & Prototyping" data-zh="設計與原型">設計與原型</h3>
+                    <p class="step-text" data-en="We create wireframes and interactive prototypes to validate concepts early. Then we develop high-fidelity designs with careful attention to visual hierarchy, typography, color, and micro-interactions." data-zh="我們創建線框圖和互動原型以盡早驗證概念。然後我們開發高保真設計,仔細注意視覺層次、字體、顏色和微互動。">我們創建線框圖和互動原型以盡早驗證概念。然後我們開發高保真設計,仔細注意視覺層次、字體、顏色和微互動。</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number" data-en="STEP 04" data-zh="步驟 04">步驟 04</div>
+                    <h3 class="step-title" data-en="Testing & Iteration" data-zh="測試與迭代">測試與迭代</h3>
+                    <p class="step-text" data-en="We conduct usability testing with real users to gather feedback. Using heat maps, session recordings, and A/B testing, we continuously refine the design based on data and user behavior." data-zh="我們與真實用戶進行可用性測試以收集反饋。使用熱圖、會話錄製和 A/B 測試,我們根據數據和用戶行為持續改進設計。">我們與真實用戶進行可用性測試以收集反饋。使用熱圖、會話錄製和 A/B 測試,我們根據數據和用戶行為持續改進設計。</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number" data-en="STEP 05" data-zh="步驟 05">步驟 05</div>
+                    <h3 class="step-title" data-en="Delivery & Support" data-zh="交付與支援">交付與支援</h3>
+                    <p class="step-text" data-en="We prepare detailed design specifications and assets for development. Post-launch, we monitor performance metrics, gather user feedback, and provide ongoing design support to ensure continuous improvement." data-zh="我們為開發準備詳細的設計規範和資產。上線後,我們監控效能指標、收集用戶反饋並提供持續的設計支援以確保持續改進。">我們為開發準備詳細的設計規範和資產。上線後,我們監控效能指標、收集用戶反饋並提供持續的設計支援以確保持續改進。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="section-container">
+            <div class="cta-section fade-in-scroll">
+                <h2 class="cta-title" data-en="Ready to Transform Your User Experience?" data-zh="準備好轉型您的用戶體驗了嗎?">準備好轉型您的用戶體驗了嗎?</h2>
+                <p class="cta-text" data-en="Let's create an interface that your users will love and your business will thrive on." data-zh="讓我們創造一個用戶喜愛、業務蓬勃發展的介面。">讓我們創造一個用戶喜愛、業務蓬勃發展的介面。</p>
+                <a href="index.html#contact" class="btn-primary" data-en="Start Your Project" data-zh="開始您的專案">開始您的專案</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <img src="images/Presence_Lab_ENG_logo_EF.png" alt="Presence Labs" class="footer-logo" id="footerLogo">
+                    <p class="footer-tagline" data-en="Better Through Presence" data-zh="因為在場,所以更好">因為在場,所以更好</p>
+                </div>
+               
+                <div>
+                    <h4 class="footer-title" data-en="CONTACT" data-zh="聯絡">聯絡</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html#contact" class="footer-link" data-en="Get in Touch" data-zh="與我們聯繫">與我們聯繫</a></li>
+                        <li><span class="footer-link">0987-326-396</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title" data-en="LOCATION" data-zh="位置">位置</h4>
+                    <ul class="footer-links">
+                        <li><span class="footer-link" data-en="Taichung, Taiwan" data-zh="台灣 台中">台灣 台中</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-en="© 2025 Presence Labs. All rights reserved." data-zh="© 2025 在場實驗室。版權所有。">© 2025 在場實驗室。版權所有。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移除自定義平滑捲動以支援跨頁面錨點連結
+        // 改用 CSS scroll-behavior: smooth
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            themeToggle.textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            
+            // 切換主題時也更新 Logo
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.textContent = '🌙';
+        }
+        // 載入時也要更新 Logo
+        setTimeout(() => {
+            if (typeof updateLogos === 'function') {
+                updateLogos();
+            }
+        }, 10);
+
+        // Nav Scroll
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Language Toggle
+        const langToggle = document.getElementById('langToggle');
+        const navLogo = document.getElementById('navLogo');
+        const footerLogo = document.getElementById('footerLogo');
+        let currentLang = 'zh';
+
+        // Logo 路徑管理函數 - 同時處理語言和主題切換
+        function updateLogos() {
+            const isLight = body.classList.contains('light-mode');
+            const theme = isLight ? '' : '_Dark2'; // 深色模式加 _Dark 後綴
+            
+            const logoPath = currentLang === 'zh'
+                ? `images/Presence_Lab_CHE_logo_EF${theme}.png`
+                : `images/Presence_Lab_ENG_logo_EF${theme}.png`;
+            
+            navLogo.src = logoPath;
+            footerLogo.src = logoPath;
+        }
+
+        // 語言切換
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            
+            document.querySelectorAll('[data-en][data-zh]').forEach(el => {
+                el.textContent = currentLang === 'en' ? el.dataset.en : el.dataset.zh;
+            });
+            
+            updateLogos(); // 使用新函數更新 Logo
+            localStorage.setItem('language', currentLang);
+        });
+
+        if (localStorage.getItem('language') === 'en') {
+            langToggle.click();
+        }
+
+        // Scroll Animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+        document.querySelectorAll('.fade-in-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
